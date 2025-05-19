@@ -289,7 +289,7 @@ const Product = () => {
       </div>
 
       {/* Footer Cart Menu (Mobile) */}
-      <div className="fixed bottom-0 left-0 right-0 sm:hidden bg-gradient-to-t from-gray-50 to-white shadow-lg px-6 py-4 flex items-center gap-2">
+      <div className="fixed bottom-0 left-0 right-0 sm:hidden bg-gradient-to-t from-gray-50 to-white shadow-lg px-6 py-4 flex items-center gap-2 z-50">
         <button
           onClick={handleAddToCart}
           className="flex-1 bg-default text-white py-2 rounded-full font-bold"
@@ -305,7 +305,7 @@ const Product = () => {
       </div>
 
       {/* Related Products */}
-      <div className="relative pt-20 pb-40 sm:pb-0">
+      <div className="relative pt-20 pb-40 sm:pb-0 ">
         <RelatedProducts category={categoryName} id={singleProduct._id} />
       </div>
 
