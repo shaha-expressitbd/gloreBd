@@ -28,6 +28,7 @@ import {
   FaHome,
 } from "react-icons/fa";
 import { FaThreads } from "react-icons/fa6";
+import RelatedProducts from "../components/RelatedProducts";
 
 const Product = () => {
   // 1) ROUTE + CONTEXT
@@ -43,7 +44,7 @@ const Product = () => {
 
   // 3) FIND PRODUCT WHENEVER slug OR products CHANGE
   useEffect(() => {
-    const id = slug?.split("-").pop();
+    const id = slug.split("-").pop();
     const found = products.find((p) => p._id === id);
     setSingleProduct(found || null);
     setQuantity(1);
@@ -72,7 +73,7 @@ const Product = () => {
     [singleProduct]
   );
 
-  // ─── EARLY RETURN: product not yet loaded ───────────────────────────
+  // ─── EARLY RETURN ─────────────────────────────────────────────────────
   if (!singleProduct) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -97,12 +98,10 @@ const Product = () => {
 
   // 7) OTHER DERIVED
   const shortDesc = singleProduct.short_description || "";
-  const categoryNames = (singleProduct.sub_category || [])
-    .map((c) => c.name)
-    .join(", ");
+  const categoryName = singleProduct.sub_category?.[0]?.name || "";
   const productUrl = window.location.href;
 
-  // 8) RENDER
+  // ─── RENDER ───────────────────────────────────────────────────────────
   return (
     <div className="container mx-auto sm:py-32 lg:px-5 2xl:px-0">
       <Helmet>
@@ -181,7 +180,6 @@ const Product = () => {
             <h1 className="text-xl lg:text-3xl font-bold">
               {singleProduct.name}
             </h1>
-
             <div className="flex gap-1 text-amber-500">
               {[...Array(5)].map((_, i) => (
                 <FaStar key={i} />
@@ -208,135 +206,97 @@ const Product = () => {
                 </p>
               )}
             </div>
-
             {discountAmt > 0 && (
               <p className="bg-white rounded-full inline-flex px-3 py-1">
-                Save: {currency} {discountAmt.toLocaleString()}
+                Save: {currency} {discountAmt}
               </p>
             )}
 
-            {/* Category */}
-            <p className="text-gray-500">Category: {categoryNames}</p>
+            <p className="text-gray-500">Category: {categoryName}</p>
 
             {/* Quantity */}
             <div className="flex items-center gap-2">
-              <p>Quantity:</p>
-              <div className="flex items-center border rounded">
-                <button className="px-2" onClick={decrement}>
-                  <FaMinus />
-                </button>
-                <span className="px-4">{quantity}</span>
-                <button className="px-2" onClick={increment}>
-                  <FaPlus />
-                </button>
-              </div>
+              <button onClick={decrement} className="p-2 border rounded">
+                <FaMinus />
+              </button>
+              <span className="px-4">{quantity}</span>
+              <button onClick={increment} className="p-2 border rounded">
+                <FaPlus />
+              </button>
             </div>
 
             {/* Add to Cart */}
             {stock > 0 ? (
               <button
                 onClick={handleAddToCart}
-                className="bg-default text-white px-8 py-3 rounded w-full font-bold"
+                className="w-full bg-default text-white py-3 rounded font-bold mt-4"
               >
                 অর্ডার করুন
               </button>
             ) : (
-              <p className="text-gray-500">Out of Stock...</p>
+              <p className="text-gray-500 mt-4">Out of Stock...</p>
             )}
 
-            <hr className="my-5" />
+            <hr className="my-6" />
 
             {/* Description Accordion */}
-            <div>
-              <button
-                onClick={() => setIsDesOpen((o) => !o)}
-                className="flex justify-between w-full text-lg font-medium"
-              >
-                Description{" "}
-                <FaAngleDown
-                  className={isDesOpen ? "transform rotate-180" : ""}
-                />
-              </button>
-              {isDesOpen && (
-                <p
-                  className="mt-2 text-gray-600"
-                  dangerouslySetInnerHTML={{
-                    __html: shortDesc.replace(/\r\n/g, "<br/>"),
-                  }}
-                />
-              )}
-            </div>
+            <button
+              onClick={() => setIsDesOpen((o) => !o)}
+              className="flex justify-between w-full text-lg font-medium mb-2"
+            >
+              Description{" "}
+              <FaAngleDown className={isDesOpen ? "rotate-180" : ""} />
+            </button>
+            {isDesOpen && (
+              <p
+                className="text-gray-600 mb-6"
+                dangerouslySetInnerHTML={{
+                  __html: shortDesc.replace(/\r\n/g, "<br/>"),
+                }}
+              />
+            )}
 
             {/* Share Buttons */}
-            <div className="mt-5 flex gap-4 text-2xl">
-              <Link
-                to={`https://facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-                  productUrl
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaFacebook />
-              </Link>
-              <Link
-                to={`https://instagram.com/?url=${encodeURIComponent(
-                  productUrl
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaInstagram />
-              </Link>
-              <Link
-                to={`https://reddit.com/submit?url=${encodeURIComponent(
-                  productUrl
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaReddit />
-              </Link>
-              <Link
-                to={`https://wa.me/?text=${encodeURIComponent(productUrl)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaWhatsapp />
-              </Link>
-              <Link
-                to={`https://threads.net/share?text=${encodeURIComponent(
-                  productUrl
-                )}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaThreads />
-              </Link>
-              <Link
-                to={`https://pinterest.com/pin/create/button/?url=${encodeURIComponent(
-                  productUrl
-                )}&media=${encodeURIComponent(
-                  images[0]
-                )}&description=${encodeURIComponent(shortDesc)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <FaPinterest />
-              </Link>
+            <div className="flex gap-4 text-2xl">
+              {[
+                ["facebook.com/sharer/sharer.php?u=", FaFacebook],
+                ["instagram.com/?url=", FaInstagram],
+                ["reddit.com/submit?url=", FaReddit],
+                ["wa.me/?text=", FaWhatsapp],
+                ["threads.net/share?text=", FaThreads],
+                [
+                  "pinterest.com/pin/create/button/?url=",
+                  FaPinterest,
+                  `&media=${encodeURIComponent(
+                    images[0]
+                  )}&description=${encodeURIComponent(shortDesc)}`,
+                ],
+              ].map(([base, Icon, extra], i) => (
+                <Link
+                  key={i}
+                  to={`https://${base}${encodeURIComponent(productUrl)}${
+                    extra || ""
+                  }`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Icon />
+                </Link>
+              ))}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Mobile Footer */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white p-4 sm:hidden flex justify-between items-center shadow-lg">
+      {/* Footer Cart Menu (Mobile) */}
+      <div className="fixed bottom-0 left-0 right-0 sm:hidden bg-gradient-to-t from-gray-50 to-white shadow-lg px-6 py-4 flex items-center gap-2">
         <button
           onClick={handleAddToCart}
-          className="flex-1 bg-default text-white py-2 rounded"
+          className="flex-1 bg-default text-white py-2 rounded-full font-bold"
         >
           অর্ডার করুন
         </button>
-        <button onClick={() => setCartMenu(true)} className="ml-4 relative">
+        <button onClick={() => setCartMenu(true)} className="relative">
           <FaShoppingCart size={24} />
           <span className="absolute top-0 right-0 bg-sky-400 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
             {totalQuantity}
@@ -344,13 +304,20 @@ const Product = () => {
         </button>
       </div>
 
-      {/* Back Home on Mobile */}
-      <Link
-        to="/"
-        className="absolute top-4 left-4 sm:hidden bg-default/50 p-2 rounded-full"
-      >
-        <FaHome className="text-white" size={24} />
-      </Link>
+      {/* Related Products */}
+      <div className="relative pt-20 pb-40 sm:pb-0">
+        <RelatedProducts category={categoryName} id={singleProduct._id} />
+      </div>
+
+      {/* Back Home Button (Mobile) */}
+      <div className="absolute sm:hidden top-4 left-4 z-50">
+        <Link
+          to="/"
+          className="w-10 h-10 flex items-center justify-center bg-default/50 rounded-full"
+        >
+          <FaHome className="text-white" size={25} />
+        </Link>
+      </div>
     </div>
   );
 };
