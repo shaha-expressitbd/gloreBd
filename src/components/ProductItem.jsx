@@ -43,12 +43,19 @@ const ProductItem = React.memo(({ id, name, product }) => {
   // pricing from first variant
   const variant = product.variantsId?.[0] || {};
   const originalPrice = Number(variant.selling_price || 0);
-  const discountAmount = Number(variant.discount_amount || 0);
-  const finalPrice =
-    variant.offer_price != null
-      ? Number(variant.offer_price)
-      : originalPrice - discountAmount;
-  const discountPercent = Number(variant.discount_percent || 0);
+
+  const now = new Date();
+  const discountStart = new Date(variant.discount_start_date || "");
+  const discountEnd = new Date(variant.discount_end_date || "");
+
+  const isDiscountActive =
+    !!variant.discount_amount && discountStart <= now && now <= discountEnd;
+
+  const finalPrice = isDiscountActive
+    ? parseInt(variant.offer_price || "0")
+    : parseInt(variant.selling_price || "0");
+  const discountPercent =
+    isDiscountActive && Math.round(variant.discount_percent || 0);
 
   return (
     <div className="shadow-sm w-full mx-auto bg-white relative rounded-lg overflow-hidden h-full flex flex-col">
@@ -79,7 +86,7 @@ const ProductItem = React.memo(({ id, name, product }) => {
           <OrderButton addToCart={handleAddToCart} />
 
           <div className="text-right font-semibold">
-            {discountAmount > 0 ? (
+            {originalPrice > finalPrice ? (
               <div>
                 <div className="relative text-center">
                   <div className="text-gray-500 text-xs">

@@ -107,10 +107,10 @@ const Checkout = () => {
 
     try {
       const res = await axios.post(`${businessAPI}/online-order`, payload);
-      console.log(res?.response);
-      if (res.data.success) {
+      console.log(res);
+      if (res.data?.success) {
         clearAllCart();
-        navigate(`/thankyou/${res.data.data.id}`);
+        navigate(`/thankyou/${res?.data?.data?.orderId}`);
       }
     } catch (err) {
       console.error("Order submission failed:", err?.response?.data);

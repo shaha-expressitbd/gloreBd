@@ -1,37 +1,50 @@
 import React, { useContext, useMemo } from "react";
 import { ShopContext } from "../context/ShopContext";
 
-const CartTotal = ({ deliveryCharge }) => {
-  const { currency, cartProducts } = useContext(ShopContext);
+const CartTotal = ({ deliveryCharge = 0 }) => {
+  const { currency, totalAmount, discountAmount } = useContext(ShopContext);
 
-  // compute subtotal from cartProducts & their variants
-  const subTotal = useMemo(() => {
-    return cartProducts.reduce((sum, item) => {
-      const variant = item.variantsId?.[0] || {};
-      const price = Number(
-        variant.offer_price != null
-          ? variant.offer_price
-          : variant.selling_price || 0
-      );
-      return sum + price * item.quantity;
-    }, 0);
-  }, [cartProducts]);
-
+  /* মেমো-করা মান */
   const delCharge = useMemo(
     () => Number(deliveryCharge) || 0,
     [deliveryCharge]
   );
-  const grandTotal = useMemo(() => subTotal + delCharge, [subTotal, delCharge]);
+
+  const subTotal = useMemo(
+    () => Number(totalAmount) + Number(discountAmount),
+    [totalAmount, discountAmount]
+  );
+
+  const grandTotal = useMemo(
+    () => Number(totalAmount) + delCharge,
+    [totalAmount, delCharge]
+  );
 
   return (
     <div className="w-full">
       <div className="flex flex-col gap-1 sm:gap-2 sm:mt-2 text-sm">
+        {/* Subtotal */}
         <div className="flex justify-between">
           <p>Subtotal</p>
           <p>
             {currency} {subTotal.toFixed(2)}
           </p>
         </div>
+
+        {/* Discount */}
+        {discountAmount > 0 && (
+          <>
+            <hr />
+            <div className="flex justify-between text-green-600">
+              <p>Discount</p>
+              <p>
+                - {currency} {Number(discountAmount).toFixed(2)}
+              </p>
+            </div>
+          </>
+        )}
+
+        {/* Delivery */}
         <hr />
         <div className="flex justify-between">
           <p>Delivery Charge</p>
@@ -39,6 +52,8 @@ const CartTotal = ({ deliveryCharge }) => {
             {currency} {delCharge.toFixed(2)}
           </p>
         </div>
+
+        {/* Grand Total */}
         <hr />
         <div className="flex justify-between">
           <p>

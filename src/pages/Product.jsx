@@ -94,14 +94,23 @@ const Product = () => {
 
   // 6) PRICING & STOCK
   const variant = singleProduct.variantsId?.[0] || {};
-  const originalPrice = Number(
-    variant.selling_price || singleProduct.price || 0
-  );
-  const discountAmt = Number(variant.discount_amount || 0);
-  const offerPrice =
-    variant.offer_price != null
-      ? Number(variant.offer_price)
-      : originalPrice - discountAmt;
+  const originalPrice = Number(variant.selling_price || 0);
+
+  const now = new Date();
+  const discountStart = new Date(variant.discount_start_date || "");
+  const discountEnd = new Date(variant.discount_end_date || "");
+
+  const isDiscountActive =
+    !!variant.discount_amount && discountStart <= now && now <= discountEnd;
+
+  const discountAmount = isDiscountActive
+    ? Number(variant.discount_amount || 0)
+    : 0;
+
+  const offerPrice = isDiscountActive
+    ? parseInt(variant.offer_price || "0")
+    : parseInt(variant.selling_price || "0");
+
   const stock = Number(
     variant.variants_stock ?? singleProduct.total_stock ?? 0
   );
@@ -198,7 +207,11 @@ const Product = () => {
 
             {/* Pricing */}
             <div className="text-3xl font-semibold">
-              {discountAmt > 0 ? (
+              {originalPrice == offerPrice ? (
+                <p className="text-default">
+                  {currency} {originalPrice.toLocaleString()}
+                </p>
+              ) : (
                 <div className="flex items-center gap-5">
                   <p className="text-default">
                     {currency} {offerPrice.toLocaleString()}
@@ -210,15 +223,11 @@ const Product = () => {
                     <span className="absolute inset-0 w-full h-[2px] bg-default transform rotate-[-10deg] top-1/2 -translate-y-1/2" />
                   </div>
                 </div>
-              ) : (
-                <p className="text-default">
-                  {currency} {originalPrice.toLocaleString()}
-                </p>
               )}
             </div>
-            {discountAmt > 0 && (
+            {discountAmount > 0 && (
               <p className="bg-white rounded-full inline-flex px-3 py-1">
-                Save: {currency} {discountAmt}
+                Save: {currency} {discountAmount}
               </p>
             )}
 
