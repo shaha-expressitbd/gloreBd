@@ -28,7 +28,13 @@ const ProductItem = React.memo(({ id, name, product }) => {
   // add to cart handler
   const handleAddToCart = useCallback(() => {
     setCartMenu(true);
-    dispatch(addToCart({ productId: id, quantity: 1 }));
+    dispatch(
+      addToCart({
+        productId: id,
+        quantity: 1,
+        variationId: product?.variantsId[0]?._id,
+      })
+    );
   }, [dispatch, id, setCartMenu]);
 
   // image URL from API

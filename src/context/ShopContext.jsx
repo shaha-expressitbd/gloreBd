@@ -93,17 +93,32 @@ export const ShopContextProvider = ({ children }) => {
   useEffect(() => {
     setTotalQuantity(cartItems.reduce((sum, i) => sum + i.quantity, 0));
   }, [cartItems]);
+
+  // useEffect(() => {
+  //   let sub = 0,
+  //     disc = 0;
+  //   cartProducts.forEach((it) => {
+  //     const price = Number(it.price);
+  //     const da = Number(it.discount_amount || 0);
+  //     sub += it.quantity * (price - da);
+  //     disc += it.quantity * da;
+  //   });
+  //   setTotalAmount(sub);
+  //   setDiscountAmount(disc);
+  // }, [cartProducts]);
+
   useEffect(() => {
-    let sub = 0,
-      disc = 0;
-    cartProducts.forEach((it) => {
-      const price = Number(it.price);
-      const da = Number(it.discount_amount || 0);
-      sub += it.quantity * (price - da);
-      disc += it.quantity * da;
-    });
-    setTotalAmount(sub);
-    setDiscountAmount(disc);
+    const subTotal = cartProducts.reduce((sum, item) => {
+      const variant = item.variantsId?.[0] || {};
+      // const price = Number(
+      //   variant.offer_price != null
+      //     ? variant.offer_price
+      //     : variant.selling_price || 0
+      // );
+      const price = Number(variant.selling_price);
+      return sum + price * item.quantity;
+    }, 0);
+    setTotalAmount(subTotal);
   }, [cartProducts]);
 
   // 5) Scroll nav toggle
@@ -145,6 +160,7 @@ export const ShopContextProvider = ({ children }) => {
         cartProducts,
         totalQuantity,
         totalAmount,
+        businessAPI,
         discountAmount,
         scrollNav,
         currency,

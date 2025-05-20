@@ -63,7 +63,13 @@ const Product = () => {
   const increment = useCallback(() => setQuantity((q) => q + 1), []);
   const handleAddToCart = useCallback(() => {
     if (!singleProduct) return;
-    dispatch(addToCart({ productId: singleProduct._id, quantity }));
+    dispatch(
+      addToCart({
+        productId: singleProduct._id,
+        quantity,
+        variationId: singleProduct?.variantsId[0]?._id,
+      })
+    );
     setCartMenu(true);
   }, [dispatch, singleProduct, quantity, setCartMenu]);
 

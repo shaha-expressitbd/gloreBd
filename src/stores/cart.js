@@ -1,72 +1,80 @@
-import { createSlice } from '@reduxjs/toolkit'
+// src/stores/cart.js
+import { createSlice } from "@reduxjs/toolkit";
 
 const items =
-  localStorage.getItem('cartItems') !== null
-    ? JSON.parse(localStorage.getItem('cartItems'))
-    : []
+  localStorage.getItem("cartItems") !== null
+    ? JSON.parse(localStorage.getItem("cartItems"))
+    : [];
 
 const initialState = {
   cartItems: items,
   quantity: 0,
-  cartTotal: 0
-}
+  cartTotal: 0,
+};
 
 const cartSlice = createSlice({
-  name: 'cart',
+  name: "cart",
   initialState,
   reducers: {
-    addToCart (state, action) {
-      const { productId, quantity } = action.payload
-      const indexProductId = state.cartItems.findIndex(
-        p => p.productId === productId
-      )
-
-      if (indexProductId >= 0) {
-        state.cartItems[indexProductId].quantity += quantity
+    addToCart(state, action) {
+      const { productId, quantity, variationId } = action.payload;
+      const idx = state.cartItems.findIndex((p) => p.productId === productId);
+      console.log(variationId);
+      if (idx >= 0) {
+        // already in cart → just bump quantity
+        state.cartItems[idx].quantity += quantity;
       } else {
-        state.cartItems.push(action.payload)
+        state.cartItems.push({ productId, quantity, variationId });
       }
-      localStorage.setItem('cartItems', JSON.stringify(state.cartItems))
+
+      localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
     },
-    removeFromCart (state, action) {
-      console.log(action.payload)
-      const nextCartItems = state.cartItems.filter(
-        item => item.productId !== action.payload
-      )
-      state.cartItems = nextCartItems
-      localStorage.setItem('cartItems', JSON.stringify(state.cartItems))
+
+    removeFromCart(state, action) {
+      // payload is productId
+      state.cartItems = state.cartItems.filter(
+        (item) => item.productId !== action.payload
+      );
+      localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
     },
-    cartQuantityIncrement (state, action) {
-      const itemIndex = state.cartItems.findIndex(
-        item => item.productId === action.payload.id
-      )
-      if (itemIndex >= 0) {
-        state.cartItems[itemIndex].quantity = action.payload.quantity
-        localStorage.setItem('cartItems', JSON.stringify(state.cartItems))
-      }
-    },
-    cartQuantityDecrement (state, action) {
-      const itemIndex = state.cartItems.findIndex(
-        item => item.productId === action.payload.id
-      )
-      if (itemIndex >= 0) {
-        state.cartItems[itemIndex].quantity = action.payload.quantity
-        localStorage.setItem('cartItems', JSON.stringify(state.cartItems))
+
+    cartQuantityIncrement(state, action) {
+      // payload: { productId, quantity }
+      const { productId, quantity } = action.payload;
+      const idx = state.cartItems.findIndex(
+        (item) => item.productId === productId
+      );
+      if (idx >= 0) {
+        state.cartItems[idx].quantity = quantity;
+        localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
       }
     },
-    clearCart (state) {
-      state.cartItems = []
-      localStorage.setItem('cartItems', JSON.stringify(state.cartItems))
-    }
-  }
-})
+
+    cartQuantityDecrement(state, action) {
+      // payload: { productId, quantity }
+      const { productId, quantity } = action.payload;
+      const idx = state.cartItems.findIndex(
+        (item) => item.productId === productId
+      );
+      if (idx >= 0) {
+        state.cartItems[idx].quantity = quantity;
+        localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
+      }
+    },
+
+    clearCart(state) {
+      state.cartItems = [];
+      localStorage.setItem("cartItems", JSON.stringify(state.cartItems));
+    },
+  },
+});
 
 export const {
   addToCart,
   removeFromCart,
-  cartQuantityDecrement,
   cartQuantityIncrement,
-  clearCart
-} = cartSlice.actions
+  cartQuantityDecrement,
+  clearCart,
+} = cartSlice.actions;
 
-export default cartSlice.reducer
+export default cartSlice.reducer;
