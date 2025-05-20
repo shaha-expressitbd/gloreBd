@@ -26,6 +26,10 @@ import {
   FaPinterest,
   FaShoppingCart,
   FaHome,
+  FaAward,
+  FaTruck,
+  FaCcMastercard,
+  FaShoppingBag,
 } from "react-icons/fa";
 import { FaThreads } from "react-icons/fa6";
 import RelatedProducts from "../components/RelatedProducts";
@@ -237,8 +241,26 @@ const Product = () => {
               <p className="text-gray-500 mt-4">Out of Stock...</p>
             )}
 
-            <hr className="my-6" />
+            <hr className="mt-8 sm:w-4/5" />
 
+            <div className="mt-5 text-gray-500 text-sm space-y-3">
+              <div className="flex gap-2">
+                <FaAward size={20} />
+                <p>100% Original Product.</p>
+              </div>
+              <div className="flex gap-2">
+                <FaTruck size={20} />
+                <p>Express Shipping</p>
+              </div>
+              <div className="flex gap-2">
+                <FaCcMastercard size={20} />
+                <p>Cash on Delivery Available</p>
+              </div>
+              <div className="flex gap-2">
+                <FaShoppingBag size={20} />
+                <p>Easy return and exchange policy within 3 days</p>
+              </div>
+            </div>
             {/* Description Accordion */}
             <button
               onClick={() => setIsDesOpen((o) => !o)}
