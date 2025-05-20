@@ -9,13 +9,13 @@ import { assets } from "../assets/assets";
 const isDiscountActive = (v = {}) => {
   if (!v.discount_amount) return false;
   const now = Date.now();
-  const start = v.discount_start_date
+  const s = v.discount_start_date
     ? new Date(v.discount_start_date).getTime()
     : -Infinity;
-  const end = v.discount_end_date
+  const e = v.discount_end_date
     ? new Date(v.discount_end_date).getTime()
     : Infinity;
-  return start <= now && now <= end;
+  return s <= now && now <= e;
 };
 const getSalePrice = (v = {}) => {
   const base = Number(v.selling_price || 0);
@@ -23,6 +23,7 @@ const getSalePrice = (v = {}) => {
     ? Math.max(base - Number(v.discount_amount || 0), 0)
     : base;
 };
+const fmt = (n) => Number(n).toLocaleString("en-US");
 
 const CartMenu = () => {
   const {
@@ -71,11 +72,11 @@ const CartMenu = () => {
         {cartProducts.map((item, idx) => {
           const v = item.variantsId?.[0] || {};
           const unit = getSalePrice(v);
-          const line = (unit * item.quantity).toFixed(2);
+          const line = unit * item.quantity;
           const img =
             v.image?.secure_url || item.images?.[0]?.image?.secure_url || "";
           const discount = isDiscountActive(v);
-          const original = Number(v.selling_price || 0).toFixed(2);
+          const original = Number(v.selling_price || 0);
 
           return (
             <div
@@ -99,15 +100,15 @@ const CartMenu = () => {
                     {discount ? (
                       <>
                         <p className="text-gray-500 text-sm line-through">
-                          {currency} {original}
+                          {currency} {fmt(original)}
                         </p>
                         <p className="text-default">
-                          {currency} {unit.toFixed(2)}
+                          {currency} {fmt(unit)}
                         </p>
                       </>
                     ) : (
                       <p className="text-default">
-                        {currency} {unit.toFixed(2)}
+                        {currency} {fmt(unit)}
                       </p>
                     )}
                   </div>
@@ -146,7 +147,7 @@ const CartMenu = () => {
                 {/* line total + delete */}
                 <div className="flex justify-between items-center mt-2">
                   <p className="text-default">
-                    {currency} {line}
+                    {currency} {fmt(line)}
                   </p>
                   <button onClick={() => handleRemoveFromCart(item.productId)}>
                     <RiDeleteBin6Line size={20} className="text-red-600" />
@@ -163,7 +164,7 @@ const CartMenu = () => {
         <div className="flex justify-between mb-2">
           <p className="text-lg font-semibold">Subtotal:</p>
           <p className="text-lg font-semibold">
-            {currency} {subtotal.toFixed(2)}
+            {currency} {fmt(subtotal)}
           </p>
         </div>
 
