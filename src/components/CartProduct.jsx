@@ -1,7 +1,30 @@
+// src/components/CartProduct.jsx
 import React, { useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { RiDeleteBin6Line } from "react-icons/ri";
+
+/* ------------------------------------------------------------------ */
+/* 👇 LOCAL helper – আলাদা ফাইল দরকার নেই                               */
+const isDiscountActive = (variant = {}) => {
+  if (!variant.discount_amount) return false;
+  const now = Date.now();
+  const start = variant.discount_start_date
+    ? new Date(variant.discount_start_date).getTime()
+    : -Infinity;
+  const end = variant.discount_end_date
+    ? new Date(variant.discount_end_date).getTime()
+    : Infinity;
+  return start <= now && now <= end;
+};
+
+const getSalePrice = (variant = {}) => {
+  const base = Number(variant.selling_price || 0);
+  return isDiscountActive(variant)
+    ? Math.max(base - Number(variant.discount_amount || 0), 0)
+    : base;
+};
+/* ------------------------------------------------------------------ */
 
 const CartProduct = () => {
   const {
@@ -18,22 +41,25 @@ const CartProduct = () => {
         <p className="text-white font-semibold">Shopping Items</p>
       </div>
 
-      {cartProducts.map((item, idx) => {
-        // pick first variant
+      {cartProducts.map((item) => {
+        /* pick first variant */
         const variant = item.variantsId?.[0] || {};
-        const unitPrice = Number(
-          variant.offer_price != null
-            ? variant.offer_price
-            : variant.selling_price || 0
-        );
+        const unitPrice = getSalePrice(variant); // ★
         const lineTotal = (unitPrice * item.quantity).toFixed(2);
-
-        // image URL
         const imgUrl =
-          variant.image?.secure_url || item.images?.[0]?.image.secure_url || "";
+          variant.image?.secure_url ||
+          item.images?.[0]?.image?.secure_url ||
+          "";
+
+        const discountActive = isDiscountActive(variant); // ★
+        const originalPrice = Number(variant.selling_price || 0).toFixed(2);
 
         return (
-          <div key={idx} className="py-4 flex border-b gap-2 justify-between">
+          <div
+            key={item.productId}
+            className="py-4 flex border-b gap-2 justify-between"
+          >
+            {/* image */}
             <div className="w-1/3">
               <img
                 src={imgUrl}
@@ -42,16 +68,33 @@ const CartProduct = () => {
               />
             </div>
 
+            {/* details */}
             <div className="w-2/3">
-              <p className="font-medium text-default mb-2">{item.name}</p>
+              <p className="font-medium text-default mb-2 line-clamp-2">
+                {item.name}
+              </p>
 
+              {/* price + qty */}
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-default">
-                    {currency} {unitPrice.toFixed(2)}
-                  </p>
+                  {discountActive ? (
+                    <>
+                      <p className="text-gray-500 text-sm line-through">
+                        {currency} {originalPrice}
+                      </p>
+                      <p className="text-default">
+                        {currency} {unitPrice.toFixed(2)}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-default">
+                      {currency} {unitPrice.toFixed(2)}
+                    </p>
+                  )}
                 </div>
                 <p>x</p>
+
+                {/* qty controls */}
                 <div className="flex items-center border rounded gap-1 px-1">
                   <button
                     className="px-0.5"
@@ -64,9 +107,7 @@ const CartProduct = () => {
                   >
                     <FaMinus size={10} />
                   </button>
-                  <p className="px-2 py-1 bg-gray-100 text-center">
-                    {item.quantity}
-                  </p>
+                  <span className="px-2 py-1 bg-gray-100">{item.quantity}</span>
                   <button
                     className="px-0.5"
                     onClick={() =>
@@ -81,6 +122,7 @@ const CartProduct = () => {
                 </div>
               </div>
 
+              {/* line total + delete */}
               <div className="flex justify-between items-center pt-2">
                 <p className="text-default text-xl">
                   = {currency} {lineTotal}
