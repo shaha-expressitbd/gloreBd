@@ -47,6 +47,9 @@ const CartMenu = () => {
   );
 
   const navigate = useNavigate();
+
+  const truncate = (str = "", n = 40) =>
+    str.length > n ? str.slice(0, n) + "..." : str;
   const goCheckout = () => {
     if (totalQuantity > 0) {
       setCartMenu(false);
@@ -81,7 +84,7 @@ const CartMenu = () => {
           return (
             <div
               key={item.productId ?? idx}
-              className="py-4 gap-5 border-b flex justify-between"
+              className="py-4 gap-3 border-b flex justify-between"
             >
               <img
                 src={img}
@@ -89,9 +92,9 @@ const CartMenu = () => {
                 className="w-[100px] h-[120px] rounded object-cover"
               />
 
-              <div className="flex-1 pl-2">
-                <p className="font-medium text-default mb-2 line-clamp-2">
-                  {item.name}
+              <div className="flex-1">
+                <p className="font-medium text-default mb-2" title={item.name}>
+                  {truncate(item.name, 40)}
                 </p>
 
                 {/* price & qty */}
