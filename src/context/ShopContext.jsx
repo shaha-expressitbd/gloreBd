@@ -43,7 +43,7 @@ export const ShopContextProvider = ({ children }) => {
 
   /* ── API ── */
   const businessAPI =
-    "http://192.168.0.250:5000/v2/api/public/67e1167340fa1b061c4b5389/6800959381b0b41ac48282a1";
+    "https://backend.calquick.app/v2/api/public/682ad002c20c6404b3e2a884/682ad06cc20c6404b3e2a898";
   const productAPI = `${businessAPI}/products`;
 
   /* 1) Fetch business + products */
