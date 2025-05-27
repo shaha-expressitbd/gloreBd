@@ -1,182 +1,159 @@
 // src/pages/Collections.jsx
 import React, { useContext, useEffect, useState, useCallback } from "react";
+import { Link } from "react-router-dom";
+import { FaAngleRight } from "react-icons/fa";
 import { ShopContext } from "../context/ShopContext";
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
 import PriceRangeFilter from "../components/PriceRange/PriceRangeFilter";
-import { FaAngleRight } from "react-icons/fa";
 import SearchBar from "../components/SearchBar";
 import { assets } from "../assets/assets";
-import { Link } from "react-router-dom";
 
 /* ------------------------------------------------------------------ */
-/* helper: প্রোডাক্ট থেকে বেস-প্রাইস বের করি (ডিসকাউন্ট নয়)           */
-const getBasePrice = (product = {}) => {
-  const variant = product.variantsId?.[0] || {};
-  return Number(variant.selling_price || 0); // NaN হলে 0 হবে
+/* Helper utilities                                                    */
+/* ------------------------------------------------------------------ */
+
+// ভিত্তি-মূল্য (ডিসকাউন্ট ছাড়া)
+const basePrice = (p) => Number(p?.variantsId?.[0]?.selling_price || 0);
+
+// একটি প্রোডাক্টে যত সাব-ক্যাটেগরি আছে, সব আইডি ফিরিয়ে দাও
+const productSubCatIds = (p) =>
+  Array.isArray(p?.sub_category) ? p.sub_category.map((sc) => sc._id) : [];
+
+// ক্যাটেগরির যে কোনো লেভেল থেকে সব children ফ্ল্যাট করে আনো
+const flattenSubCats = (nodes = []) => {
+  const list = [];
+  const walk = (arr) =>
+    arr.forEach((n) => {
+      if (!list.some((x) => x._id === n._id))
+        list.push({ _id: n._id, name: n.name });
+      if (Array.isArray(n.children) && n.children.length) walk(n.children);
+    });
+  walk(nodes);
+  return list;
 };
-
-/* helper: প্রোডাক্টের ক্যাটেগরি-আইডি */
-const getCategoryId = (product = {}) =>
-  product.sub_category?.[0]?._id ||
-  product.category?._id ||
-  product.category?.id ||
-  ""; // সুবিধামতো ফলো-ব্যাক
-
 /* ------------------------------------------------------------------ */
 
 const Collections = () => {
-  /* ------------- Context ------------- */
-  const { products, search, setShowSearch, showSearch, currency, categories } =
+  const { products, search, showSearch, setShowSearch, currency, categories } =
     useContext(ShopContext);
 
-  /* ------------- Price slider state ------------- */
-  const [priceRange, setPriceRange] = useState([0, 0]); // [min,max] in UI
-  const [rangeValues, setRangeValues] = useState([0, 0]); // chosen range
-
-  /* ------------- Filters / sort ------------- */
+  /* ------------ state ------------- */
+  const [priceRange, setPriceRange] = useState([0, 0]); // পাবলিক রেঞ্জ
+  const [range, setRange] = useState([0, 0]); // সিলেক্টেড রেঞ্জ
   const [showFilter, setShowFilter] = useState(false);
-  const [filterProducts, setFilterProducts] = useState([]);
-  const [category, setCategory] = useState([]); // selected category ids
+  const [selectedSubs, setSelectedSubs] = useState([]); // সাব-ক্যাটেগরি আইডি
   const [sortType, setSortType] = useState("relavent");
+  const [list, setList] = useState([]);
 
-  /* ------------------------------------------------------------------ */
-  /* INIT: range + default products                                     */
+  // সব সাব-ক্যাটেগরির ফ্ল্যাট লিস্ট (parent + nested)
+  const subCats = flattenSubCats(categories);
+
+  /* ---------- প্রাইস রেঞ্জ init ---------- */
   useEffect(() => {
     if (!products.length) return;
-
-    const priceList = products.map(getBasePrice).filter(Boolean); // remove 0/NaN
-    const min = Math.min(...priceList);
-    const max = Math.max(...priceList);
-
+    const prices = products.map(basePrice).filter((n) => n > 0);
+    const min = Math.min(...prices);
+    const max = Math.max(...prices);
     setPriceRange([min, max]);
-    setRangeValues([min, max]);
-    setFilterProducts(products); // show all by default
+    setRange([min, max]);
   }, [products]);
 
-  /* ------------------------------------------------------------------ */
-  /* toggle category selection                                          */
-  const toggleCategory = (e) => {
-    const value = String(e.target.value);
-    setCategory((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
-    );
-  };
-
-  /* ------------------------------------------------------------------ */
-  /* applyFilter: search + category + price                             */
-  const applyFilter = useCallback(() => {
+  /* ---------- filter + sort ---------- */
+  const applyFilters = useCallback(() => {
     let out = [...products];
 
-    /* search */
-    if (showSearch && search) {
+    // সার্চ
+    if (showSearch && search.trim()) {
+      const term = search.toLowerCase();
+      out = out.filter((p) => p.name.toLowerCase().includes(term));
+    }
+
+    // সাব-ক্যাটেগরি
+    if (selectedSubs.length) {
       out = out.filter((p) =>
-        p.name.toLowerCase().includes(search.toLowerCase())
+        productSubCatIds(p).some((id) => selectedSubs.includes(id))
       );
     }
 
-    /* category */
-    if (category.length) {
-      out = out.filter((p) => category.includes(getCategoryId(p)));
-    }
-
-    /* price */
+    // প্রাইস
     out = out.filter((p) => {
-      const price = getBasePrice(p);
-      return price >= rangeValues[0] && price <= rangeValues[1];
+      const price = basePrice(p);
+      return price >= range[0] && price <= range[1];
     });
 
-    setFilterProducts(out);
-  }, [products, search, showSearch, category, rangeValues]);
+    // sort
+    const byPrice = (a, b) => basePrice(a) - basePrice(b);
+    switch (sortType) {
+      case "low-high":
+        out.sort(byPrice);
+        break;
+      case "high-low":
+        out.sort((a, b) => byPrice(b, a));
+        break;
+      case "name-asc":
+        out.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "name-desc":
+        out.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case "latest":
+        out.sort(
+          (a, b) =>
+            new Date(b.created_at || b.createdAt) -
+            new Date(a.created_at || a.createdAt)
+        );
+        break;
+      case "oldest":
+        out.sort(
+          (a, b) =>
+            new Date(a.created_at || a.createdAt) -
+            new Date(b.created_at || b.createdAt)
+        );
+        break;
+      case "stock-high":
+        out.sort(
+          (a, b) =>
+            (b.variantsId?.[0]?.variants_stock ?? 0) -
+            (a.variantsId?.[0]?.variants_stock ?? 0)
+        );
+        break;
+      case "stock-low":
+        out.sort(
+          (a, b) =>
+            (a.variantsId?.[0]?.variants_stock ?? 0) -
+            (b.variantsId?.[0]?.variants_stock ?? 0)
+        );
+        break;
+      default:
+        break; // relavent = default order
+    }
+    setList(out);
+  }, [products, search, showSearch, selectedSubs, range, sortType]);
 
-  /* ------------------------------------------------------------------ */
-  /* sortProducts                                                       */
-  const sortProducts = useCallback(
-    (list) => {
-      let fp = [...list];
-      switch (sortType) {
-        case "low-high":
-          fp.sort((a, b) => getBasePrice(a) - getBasePrice(b));
-          break;
+  useEffect(applyFilters, [applyFilters]);
 
-        case "high-low":
-          fp.sort((a, b) => getBasePrice(b) - getBasePrice(a));
-          break;
+  /* ---------- handlers ---------- */
+  const toggleSubCat = (e) => {
+    const id = e.target.value;
+    setSelectedSubs((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
 
-        case "name-asc":
-          fp.sort((a, b) => a.name.localeCompare(b.name));
-          break;
-
-        case "name-desc":
-          fp.sort((a, b) => b.name.localeCompare(a.name));
-          break;
-
-        case "stock-high":
-          fp.sort(
-            (a, b) =>
-              (b.variantsId?.[0]?.variants_stock ?? 0) -
-              (a.variantsId?.[0]?.variants_stock ?? 0)
-          );
-          break;
-
-        case "stock-low":
-          fp.sort(
-            (a, b) =>
-              (a.variantsId?.[0]?.variants_stock ?? 0) -
-              (b.variantsId?.[0]?.variants_stock ?? 0)
-          );
-          break;
-
-        case "latest":
-          fp.sort(
-            (a, b) =>
-              new Date(b.created_at || b.createdAt) -
-              new Date(a.created_at || a.createdAt)
-          );
-          break;
-
-        case "oldest":
-          fp.sort(
-            (a, b) =>
-              new Date(a.created_at || a.createdAt) -
-              new Date(b.created_at || b.createdAt)
-          );
-          break;
-
-        default:
-          break; // "relavent" => keep as is
-      }
-      setFilterProducts(fp);
-    },
-    [sortType]
-  );
-
-  /* ------------------------------------------------------------------ */
-  /* triggers: filtering & sorting                                      */
-  useEffect(() => {
-    applyFilter();
-  }, [applyFilter]);
-
-  useEffect(() => {
-    sortProducts(filterProducts);
-  }, [sortType]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  /* ------------------------------------------------------------------ */
-  /* JSX                                                                */
+  /* ---------------- JSX ---------------- */
   return (
     <div className="container mx-auto relative pb-20 sm:py-20 sm:pb-10 min-h-screen px-3 sm:px-0">
-      {/* desktop search */}
-      <div className="hidden sm:block">
+      {/* Desktop search */}
+      <div className="hidden  sm:block">
         <SearchBar />
       </div>
 
       <div className="flex sm:flex-row flex-col gap-1 sm:gap-10 pt-5 py-10 border-t sm:space-y-5">
-        {/* ---------------------------------------------------------------- */}
-        {/* LEFT pane: filters                                               */}
+        {/* ------------- Sidebar ------------- */}
         <div className="min-w-60">
-          {/* mobile top-bar */}
+          {/* Mobile top bar */}
           <div className="flex items-center justify-between px-2 sm:px-0 sm:hidden">
-            {/* filter btn */}
             <div className="w-1/3">
               <button
                 onClick={() => setShowFilter(!showFilter)}
@@ -190,13 +167,9 @@ const Collections = () => {
                 />
               </button>
             </div>
-            {/* logo */}
-            <div className="w-1/3 flex justify-center">
-              <Link to="/">
-                <img src={assets.logo} className="w-24" alt="Logo" />
-              </Link>
-            </div>
-            {/* search btn */}
+            <Link to="/">
+              <img src={assets.logo} alt="Logo" className="w-24" />
+            </Link>
             <div className="w-1/3 flex justify-end">
               <button onClick={() => setShowSearch(!showSearch)}>
                 <img
@@ -205,29 +178,29 @@ const Collections = () => {
                   className="w-5 cursor-pointer"
                 />
               </button>
-            </div>
+            </div>{" "}
           </div>
 
-          {/* actual filters */}
+          {/* Filters */}
           <div
             className={`border rounded border-gray-300 sm:mt-12 p-5 mb-5 ${
               showFilter ? "" : "hidden"
             } sm:block`}
           >
-            {/* Category filter */}
+            {/* Sub-category filter */}
             <div className="mb-5 sm:mb-10 space-y-3">
-              <span className="font-semibold">Filter by Category</span>
-              <div className="flex flex-col gap-5 font-medium text-gray-700 text-sm">
-                {categories.map((c) => (
-                  <label key={c._id || c.id} className="flex gap-2">
+              <span className="font-semibold">Filter by Sub-Category</span>
+              <div className="flex flex-col gap-2 text-sm text-gray-700 max-h-60 overflow-y-auto pr-1">
+                {subCats.map((sc) => (
+                  <label key={sc._id} className="flex gap-2 items-center">
                     <input
                       type="checkbox"
-                      className="w-3"
-                      value={c._id || c.id}
-                      checked={category.includes(String(c._id || c.id))}
-                      onChange={toggleCategory}
+                      value={sc._id}
+                      checked={selectedSubs.includes(sc._id)}
+                      onChange={toggleSubCat}
+                      className="w-3 h-3"
                     />
-                    {c.name}
+                    {sc.name}
                   </label>
                 ))}
               </div>
@@ -240,29 +213,24 @@ const Collections = () => {
                 min={priceRange[0]}
                 max={priceRange[1]}
                 minDifference={100}
-                onRangeChange={setRangeValues}
+                onRangeChange={setRange}
                 currency={currency}
               />
             </div>
           </div>
         </div>
 
-        {/* mobile search */}
-        <div className="sm:hidden">
-          <SearchBar />
-        </div>
-
-        {/* ---------------------------------------------------------------- */}
-        {/* RIGHT pane: products                                             */}
+        {/* ------------- Products ------------- */}
         <div className="flex-1">
-          {/* title + sort */}
-          <div className="flex justify-between my-5 sm:mt-0 text-base sm:text-2xl px-2 sm:px-0">
+          {/* heading + sort */}
+          <div className="flex justify-between items-center my-5 px-2 sm:px-0 text-base sm:text-2xl">
             <Title text1="ALL" text2="COLLECTIONS" />
             <select
+              value={sortType}
               onChange={(e) => setSortType(e.target.value)}
               className="border-2 border-default px-2 text-sm rounded"
             >
-              <option value="relavent">Sort by: Relavent</option>
+              <option value="relavent">Sort by: Relevant</option>
               <option value="low-high">Price: Low to High</option>
               <option value="high-low">Price: High to Low</option>
               <option value="latest">Latest to Oldest</option>
@@ -274,10 +242,10 @@ const Collections = () => {
             </select>
           </div>
 
-          {/* product grid */}
+          {/* grid */}
           <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-5">
-            {filterProducts.length ? (
-              filterProducts.map((p) => (
+            {list.length ? (
+              list.map((p) => (
                 <ProductItem key={p._id} id={p._id} name={p.name} product={p} />
               ))
             ) : (
