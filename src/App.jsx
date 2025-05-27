@@ -158,7 +158,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route
-          path="/category-product/:categoryId"
+          path="/category-product/:subCategoryId"
           element={<CategoryProduct />}
         />
         <Route path="/singleproduct/:slug" element={<Product />} />
