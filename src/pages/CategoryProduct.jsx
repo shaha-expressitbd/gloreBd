@@ -8,12 +8,8 @@ import { assets } from "../assets/assets";
 const CategoryProduct = () => {
   const { subCategoryId } = useParams();
   const { products, categories } = useContext(ShopContext);
-  console.log(products);
-  console.log(
-    products.map((product) => product.subCategoryId === subCategoryId)
-  );
+
   const [related, setRelated] = useState([]);
-  console.log(related);
   const [subName, setSubName] = useState("");
 
   useEffect(() => {
@@ -26,14 +22,11 @@ const CategoryProduct = () => {
     setRelated(filtered);
 
     // find the sub-category name
-    const allSubs = categories.reduce((acc, cat) => {
-      if (cat.children) acc.push(...cat.children);
-      return acc;
-    }, []);
+    const allSubs = categories.flatMap((cat) => cat.children || []);
     const found = allSubs.find((sc) => sc._id === subCategoryId);
     setSubName(found ? found.name : "");
   }, [products, categories, subCategoryId]);
-  console.log(related);
+
   return (
     <div className="py-5 sm:py-10 xl:py-20 px-3 lg:px-0 container mx-auto">
       <Link to="/">
@@ -44,16 +37,22 @@ const CategoryProduct = () => {
         <Title text1="" text2={subName} />
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-5">
-        {related.map((item) => (
-          <ProductItem
-            key={item._id}
-            id={item._id}
-            name={item.name}
-            product={item}
-          />
-        ))}
-      </div>
+      {related.length === 0 ? (
+        <div className="h-[60vh] flex items-center justify-center text-gray-500">
+          কোন প্রোডাক্ট পাওয়া যায়নি
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-5">
+          {related.map((item) => (
+            <ProductItem
+              key={item._id}
+              id={item._id}
+              name={item.name}
+              product={item}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };

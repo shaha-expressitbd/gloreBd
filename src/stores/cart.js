@@ -19,7 +19,7 @@ const cartSlice = createSlice({
     addToCart(state, action) {
       const { productId, quantity, variationId } = action.payload;
       const idx = state.cartItems.findIndex((p) => p.productId === productId);
-      console.log(variationId);
+
       if (idx >= 0) {
         // already in cart → just bump quantity
         state.cartItems[idx].quantity += quantity;

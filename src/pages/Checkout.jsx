@@ -103,11 +103,9 @@ const Checkout = () => {
       due: dueAmount.toString(),
     };
 
-    console.log("Submitting order payload:", payload);
-
     try {
       const res = await axios.post(`${businessAPI}/online-order`, payload);
-      console.log(res);
+
       if (res.data?.success) {
         clearAllCart();
         navigate(`/thankyou/${res?.data?.data?.orderId}`);

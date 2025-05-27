@@ -74,6 +74,7 @@ const MobileMegaMenu = () => {
             )}
           </div>
         ))} */}
+
         {categories.map((cat) => (
           <div key={cat._id}>
             <button

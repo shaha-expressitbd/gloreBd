@@ -116,7 +116,7 @@ function App() {
   }, [cartMenu]);
 
   return (
-    <div className="relative bg-secondary">
+    <div className=" relative bg-secondary">
       {isCheckoutPage || isBigDealPage ? (
         <></>
       ) : (
