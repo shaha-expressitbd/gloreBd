@@ -335,8 +335,8 @@ const Product = () => {
         </button>
         <button onClick={() => setCartMenu(true)} className="relative">
           <FaShoppingCart size={24} />
-          <span className="absolute top-0 right-0 bg-sky-400 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
-            {totalQuantity}
+          <span className="absolute -top-2 -right-2 bg-sky-400 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+            {totalQuantity > 9 ? "9+" : totalQuantity}
           </span>
         </button>
       </div>

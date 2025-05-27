@@ -212,11 +212,11 @@ const Checkout = () => {
                 defaultValue=""
               >
                 <option value="">Select Delivery Area</option>
+                <option value="sub_dhaka">সাব-ঢাকা ৳ {subDhakaFee}</option>
                 <option value="inside_dhaka">ঢাকার ভিতরে ৳ {insideFee}</option>
                 <option value="outside_dhaka">
                   ঢাকার বাইরে ৳ {outsideFee}
                 </option>
-                <option value="sub_dhaka">সাব-ঢাকা ৳ {subDhakaFee}</option>
               </select>
               {errors.delivery_area && (
                 <p className="mt-2 text-sm text-red-600">
