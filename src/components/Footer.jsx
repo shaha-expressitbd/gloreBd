@@ -1,6 +1,7 @@
 import React from "react";
 import { assets } from "../assets/assets";
 import { Link } from "react-router-dom";
+
 import {
   FaFacebook,
   FaFacebookMessenger,
@@ -13,7 +14,7 @@ const Footer = () => {
   let year = d.getFullYear();
 
   return (
-    <div className="bg-black footer pb-10 sm:pb-0">
+    <div className="bg-black footer pb-10 md:pb-10 sm:pb-0">
       <div className="justify-center items-center mx-auto px-2 lg:px-0 p-12 lg:pb-0 text-white container">
         <div className="grid sm:grid-flow-col grid-flow-row sm:grid-cols-4 justify-between lg:gap-8 space-y-10 lg:space-y-0 pb-10">
           <div>
@@ -86,17 +87,13 @@ const Footer = () => {
             </div>
           </div>
         </div>
-        <div className="mb-6 md:mb-6 sm:mb-20 text-center flex flex-row justify-center gap-1">
+        <div className="mb-6 md:mb-0 sm:mb-20 text-center flex flex-row justify-center gap-1">
           <p className="text-white text-sm">
             &copy; {new Date().getFullYear()} Powered by
           </p>
           <Link to="https://calquick.app">
             {" "}
-            <img
-              className="w-[70px]"
-              src="/src/assets/logo-white.webp"
-              alt=""
-            />
+            <img className="w-[70px]" src="/image/logo-white.webp" alt="" />
           </Link>
         </div>
       </div>
