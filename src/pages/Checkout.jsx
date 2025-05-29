@@ -17,11 +17,12 @@ const Checkout = () => {
     totalAmount,
     business,
   } = useContext(ShopContext);
-
+  console.log(business);
   // delivery fees from your business API
   const insideFee = business?.insideDhaka || 0;
   const outsideFee = business?.outsideDhaka || 0;
   const subDhakaFee = business?.subDhaka || 0;
+  const defaultCurrier = business?.defaultCourier || "";
 
   const [method, setMethod] = useState("cod");
   const [deliveryCharge, setDeliveryCharge] = useState(0);
@@ -91,7 +92,12 @@ const Checkout = () => {
       quantity: i.quantity,
     }));
 
-    const dueAmount = Number(deliveryCharge) + Number(totalAmount);
+    console.log(totalAmount);
+    console.log(defaultCurrier);
+    const dueAmount =
+      defaultCurrier === "office-delivery"
+        ? Number(totalAmount)
+        : Number(deliveryCharge) + Number(totalAmount);
 
     const payload = {
       customer_name: formData.name,
