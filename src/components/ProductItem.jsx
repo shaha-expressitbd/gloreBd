@@ -59,7 +59,7 @@ const ProductItem = React.memo(({ id, name, product }) => {
 
   return (
     <div className="shadow-sm w-full mx-auto bg-white relative rounded-lg overflow-hidden h-full flex flex-col">
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden w-full h-80 md:h-64 lg:h-80 xl:h-[28rem]">
         <Link to={`/singleproduct/${slug}`}>
           <ProductImage
             src={imageUrl}
