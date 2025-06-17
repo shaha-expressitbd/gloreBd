@@ -79,7 +79,7 @@ const Product = ({ bg }) => {
     [singleProduct]
   );
   const videoUrl = useMemo(
-    () => singleProduct?.video?.[0]?.secure_url || null,
+    () => singleProduct?.video?.[0]?.video?.secure_url || null,
     [singleProduct]
   );
 
@@ -120,7 +120,7 @@ const Product = ({ bg }) => {
   const categoryName = singleProduct.sub_category?.[0]?.name || "";
   const productUrl = window.location.href;
 
-  // ─── RENDER ───────────────────────────────────────────────────────────
+  // ─── RENDER
   return (
     <div className="container mx-auto sm:py-32 lg:px-5 2xl:px-0">
       <Helmet>
