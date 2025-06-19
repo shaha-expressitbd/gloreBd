@@ -343,6 +343,14 @@ const Product = ({ bg }) => {
         </button>
         <button onClick={() => setCartMenu(true)} className="relative">
           <FaShoppingCart size={24} />
+          {/* <span className="absolute -top-2 -right-2 bg-sky-400 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full animate-ping">
+            {totalQuantity > 9 ? "9+" : totalQuantity}
+          </span> */}
+          <span
+            className={`absolute -top-2 -right-2 bg-sky-400 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full ${bg} ${
+              totalQuantity > 0 && "animate-ping"
+            }`}
+          ></span>
           <span
             className={`absolute -top-2 -right-2 bg-sky-400 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full ${bg}`}
           >
