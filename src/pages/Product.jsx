@@ -35,18 +35,19 @@ import { FaThreads } from "react-icons/fa6";
 import RelatedProducts from "../components/RelatedProducts";
 
 const Product = ({ bg }) => {
-  // 1) ROUTE + CONTEXT
+  // ROUTE + CONTEXT
   const { slug } = useParams();
   const dispatch = useDispatch();
   const { products, currency, totalQuantity, setCartMenu } =
     useContext(ShopContext);
 
-  // 2) LOCAL STATE
+  // LOCAL STATE
   const [singleProduct, setSingleProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const [isDesOpen, setIsDesOpen] = useState(false);
+  const [isShortOpen, setIsShortOpen] = useState(false);
+  const [isLongOpen, setIsLongOpen] = useState(false);
 
-  // 3) FIND PRODUCT WHENEVER slug OR products CHANGE
+  // FIND PRODUCT
   useEffect(() => {
     const id = slug.split("-").pop();
     const found = products.find((p) => p._id === id);
@@ -55,7 +56,7 @@ const Product = ({ bg }) => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [slug, products]);
 
-  // 4) STABLE CALLBACKS
+  // QUANTITY HANDLERS
   const decrement = useCallback(
     () => setQuantity((q) => Math.max(1, q - 1)),
     []
@@ -73,7 +74,7 @@ const Product = ({ bg }) => {
     setCartMenu(true);
   }, [dispatch, singleProduct, quantity, setCartMenu]);
 
-  // 5) DERIVED VALUES
+  // DERIVED VALUES
   const images = useMemo(
     () => singleProduct?.images?.map((i) => i.image.secure_url) || [],
     [singleProduct]
@@ -82,45 +83,35 @@ const Product = ({ bg }) => {
     () => singleProduct?.video?.[0]?.video?.secure_url || null,
     [singleProduct]
   );
-
-  // ─── EARLY RETURN ─────────────────────────────────────────────────────
-  if (!singleProduct) {
+  if (!singleProduct)
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p>Loading product…</p>
       </div>
     );
-  }
 
-  // 6) PRICING & STOCK
   const variant = singleProduct.variantsId?.[0] || {};
   const originalPrice = Number(variant.selling_price || 0);
-
   const now = new Date();
   const discountStart = new Date(variant.discount_start_date || "");
   const discountEnd = new Date(variant.discount_end_date || "");
-
   const isDiscountActive =
     !!variant.discount_amount && discountStart <= now && now <= discountEnd;
-
   const discountAmount = isDiscountActive
     ? Number(variant.discount_amount || 0)
     : 0;
-
   const offerPrice = isDiscountActive
     ? parseInt(variant.offer_price || "0")
     : parseInt(variant.selling_price || "0");
-
   const stock = Number(
     variant.variants_stock ?? singleProduct.total_stock ?? 0
   );
 
-  // 7) OTHER DERIVED
   const shortDesc = singleProduct.short_description || "";
+  const longDesc = singleProduct.long_description || "";
   const categoryName = singleProduct.sub_category?.[0]?.name || "";
   const productUrl = window.location.href;
 
-  // ─── RENDER
   return (
     <div className="container mx-auto sm:py-32 lg:px-5 2xl:px-0">
       <Helmet>
@@ -158,8 +149,8 @@ const Product = ({ bg }) => {
                   <img
                     src={src}
                     alt={singleProduct.name}
-                    className="object-cover rounded"
                     loading="lazy"
+                    className="object-cover rounded"
                   />
                 </SwiperSlide>
               ))}
@@ -185,8 +176,8 @@ const Product = ({ bg }) => {
                   key={i}
                   src={src}
                   alt={singleProduct.name}
-                  className="min-h-full rounded-md"
                   loading="lazy"
+                  className="min-h-full rounded-md"
                 />
               ))}
             </div>
@@ -205,9 +196,8 @@ const Product = ({ bg }) => {
               ))}
             </div>
 
-            {/* Pricing */}
             <div className="text-3xl font-semibold">
-              {originalPrice == offerPrice ? (
+              {originalPrice === offerPrice ? (
                 <p className="text-default">
                   {currency} {originalPrice.toLocaleString()}
                 </p>
@@ -230,10 +220,8 @@ const Product = ({ bg }) => {
                 Save: {currency} {discountAmount}
               </p>
             )}
-
             <p className="text-gray-500">Category: {categoryName}</p>
 
-            {/* Quantity */}
             <div className="flex items-center gap-2">
               <button onClick={decrement} className="p-2 border rounded">
                 <FaMinus />
@@ -244,7 +232,6 @@ const Product = ({ bg }) => {
               </button>
             </div>
 
-            {/* Add to Cart */}
             {stock > 0 ? (
               <button
                 onClick={handleAddToCart}
@@ -276,15 +263,16 @@ const Product = ({ bg }) => {
                 <p>Easy return and exchange policy within 3 days</p>
               </div>
             </div>
-            {/* Description Accordion */}
+
+            {/* Short Description Accordion */}
             <button
-              onClick={() => setIsDesOpen((o) => !o)}
+              onClick={() => setIsShortOpen((o) => !o)}
               className="flex justify-between w-full text-lg font-medium mb-2"
             >
-              Description{" "}
-              <FaAngleDown className={isDesOpen ? "rotate-180" : ""} />
+              Short Description{" "}
+              <FaAngleDown className={isShortOpen ? "rotate-180" : ""} />
             </button>
-            {isDesOpen && (
+            {isShortOpen && (
               <p
                 className="text-gray-600 mb-6"
                 dangerouslySetInnerHTML={{
@@ -293,7 +281,27 @@ const Product = ({ bg }) => {
               />
             )}
 
-            {/* Share Buttons */}
+            {/* Long Description Accordion (hide if no longDesc) */}
+            {longDesc && (
+              <>
+                <button
+                  onClick={() => setIsLongOpen((o) => !o)}
+                  className="flex justify-between w-full text-lg font-medium mb-2"
+                >
+                  Long Description{" "}
+                  <FaAngleDown className={isLongOpen ? "rotate-180" : ""} />
+                </button>
+                {isLongOpen && (
+                  <p
+                    className="text-gray-600 mb-6"
+                    dangerouslySetInnerHTML={{
+                      __html: longDesc.replace(/\r\n/g, "<br/>"),
+                    }}
+                  />
+                )}
+              </>
+            )}
+
             <div className="flex gap-4 text-2xl">
               {[
                 ["facebook.com/sharer/sharer.php?u=", FaFacebook],
@@ -325,7 +333,7 @@ const Product = ({ bg }) => {
         </div>
       </div>
 
-      {/* Footer Cart Menu (Mobile) */}
+      {/* Mobile Footer Cart Menu */}
       <div className="fixed bottom-0 left-0 right-0 sm:hidden bg-gradient-to-t from-gray-50 to-white shadow-lg px-6 py-4 flex items-center gap-2 z-50">
         <button
           onClick={handleAddToCart}
@@ -335,14 +343,6 @@ const Product = ({ bg }) => {
         </button>
         <button onClick={() => setCartMenu(true)} className="relative">
           <FaShoppingCart size={24} />
-          {/* <span className="absolute -top-2 -right-2 bg-sky-400 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full animate-ping">
-            {totalQuantity > 9 ? "9+" : totalQuantity}
-          </span> */}
-          <span
-            className={`absolute -top-2 -right-2 bg-sky-400 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full ${bg} ${
-              totalQuantity > 0 && "animate-ping"
-            }`}
-          ></span>
           <span
             className={`absolute -top-2 -right-2 bg-sky-400 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full ${bg}`}
           >
@@ -352,7 +352,7 @@ const Product = ({ bg }) => {
       </div>
 
       {/* Related Products */}
-      <div className="relative pt-20 pb-40 sm:pb-0 ">
+      <div className="relative pt-20 pb-40 sm:pb-0">
         <RelatedProducts category={categoryName} id={singleProduct._id} />
       </div>
 
