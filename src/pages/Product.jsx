@@ -44,7 +44,7 @@ const Product = ({ bg }) => {
   // LOCAL STATE
   const [singleProduct, setSingleProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const [isShortOpen, setIsShortOpen] = useState(false);
+  const [isShortOpen, setIsShortOpen] = useState(true);
   const [isLongOpen, setIsLongOpen] = useState(false);
 
   // FIND PRODUCT
@@ -266,7 +266,13 @@ const Product = ({ bg }) => {
 
             {/* Short Description Accordion */}
             <button
-              onClick={() => setIsShortOpen((o) => !o)}
+              onClick={() => {
+                setIsShortOpen((prev) => {
+                  const next = !prev;
+                  if (next) setIsLongOpen(false); // close long when opening short
+                  return next;
+                });
+              }}
               className="flex justify-between w-full text-lg font-medium mb-2"
             >
               Short Description{" "}
@@ -285,7 +291,13 @@ const Product = ({ bg }) => {
             {longDesc && (
               <>
                 <button
-                  onClick={() => setIsLongOpen((o) => !o)}
+                  onClick={() => {
+                    setIsLongOpen((prev) => {
+                      const next = !prev;
+                      if (next) setIsShortOpen(false); // close short when opening long
+                      return next;
+                    });
+                  }}
                   className="flex justify-between w-full text-lg font-medium mb-2"
                 >
                   Long Description{" "}
