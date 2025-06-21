@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host",
+    "dev": "vite --port 5173",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview --port 5173"
   },
   "dependencies": {
     "@babel/runtime": "^7.26.10",
@@ -44,6 +44,6 @@
     "vite": "^5.4.1"
   },
   "overrides": {
-      "esbuild": "^0.25.0"
-   }
+    "esbuild": "^0.25.0"
+  }
 }
