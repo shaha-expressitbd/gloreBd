@@ -36,7 +36,7 @@ const RelatedProducts = ({ category, id }) => {
             Explore All Products
           </Link>
         </div>
-        <div className="bottom-0 left-0 w-full bg-black py-2 mt-5 text-center flex items-center justify-center gap-1 z-10">
+        {/* <div className="relative md:fixed bottom-0 left-0 w-full bg-black py-2 mt-5 text-center flex items-center justify-center gap-1 z-10">
           <p className="text-white text-sm">
             &copy; {new Date().getFullYear()} Powered by
           </p>
@@ -47,7 +47,7 @@ const RelatedProducts = ({ category, id }) => {
               alt="CalQuick Logo"
             />
           </Link>
-        </div>
+        </div> */}
       </>
     );
   }
@@ -68,7 +68,7 @@ const RelatedProducts = ({ category, id }) => {
         ))}
       </div>
 
-      <div className="mb-6 md:mb-0 sm:mb-20 text-center flex flex-row justify-center gap-1 bg-black mt-5">
+      {/* <div className="relative md:sticky mb-6 md:mb-0 sm:mb-20 text-center flex flex-row justify-center gap-1 bg-black mt-5">
         <p className="text-white text-sm">
           &copy; {new Date().getFullYear()} Powered by
         </p>
@@ -76,7 +76,7 @@ const RelatedProducts = ({ category, id }) => {
           {" "}
           <img className="w-[70px]" src="/image/logo-white.webp" alt="" />
         </Link>
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -113,27 +113,58 @@ const Product = ({ bg }) => {
   const productUrl = window.location.href;
 
   return (
-    <div className="container mx-auto sm:py-32 lg:px-5 2xl:px-0">
-      <Helmet>
-        <title>{singleProduct.name}</title>
-        <meta property="og:title" content={singleProduct.name} />
-        <meta property="og:description" content={shortDesc} />
-        <meta property="og:image" content={images[0]} />
-        <meta property="og:url" content={productUrl} />
-        <meta property="og:type" content="product" />
-      </Helmet>
+    <>
+      <div className="container mx-auto sm:py-32 lg:px-5 2xl:px-0">
+        <Helmet>
+          <title>{singleProduct.name}</title>
+          <meta property="og:title" content={singleProduct.name} />
+          <meta property="og:description" content={shortDesc} />
+          <meta property="og:image" content={images[0]} />
+          <meta property="og:url" content={productUrl} />
+          <meta property="og:type" content="product" />
+        </Helmet>
 
-      <div className="flex flex-col md:flex-row gap-12">
-        {/* Images / Video */}
-        <div
-          className={`w-full md:w-1/2 ${
-            images.length > 1 || videoUrl ? "lg:w-3/4" : ""
-          }`}
-        >
-          {window.innerWidth < 640 ? (
-            <Swiper navigation modules={[Navigation, Zoom]}>
-              {videoUrl && (
-                <SwiperSlide>
+        <div className="flex flex-col md:flex-row gap-12">
+          {/* Images / Video */}
+          <div
+            className={`w-full md:w-1/2 ${
+              images.length > 1 || videoUrl ? "lg:w-3/4" : ""
+            }`}
+          >
+            {window.innerWidth < 640 ? (
+              <Swiper navigation modules={[Navigation, Zoom]}>
+                {videoUrl && (
+                  <SwiperSlide>
+                    <ReactPlayer
+                      url={videoUrl}
+                      playing
+                      loop
+                      muted
+                      width="100%"
+                      height="100%"
+                    />
+                  </SwiperSlide>
+                )}
+                {images.map((src, i) => (
+                  <SwiperSlide key={i}>
+                    <img
+                      src={src}
+                      alt={singleProduct.name}
+                      loading="lazy"
+                      className="object-cover rounded"
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            ) : (
+              <div
+                className={`grid gap-2 ${
+                  images.length > 1 || videoUrl
+                    ? "lg:grid-cols-2"
+                    : "grid-cols-1"
+                }`}
+              >
+                {videoUrl && (
                   <ReactPlayer
                     url={videoUrl}
                     playing
@@ -142,250 +173,247 @@ const Product = ({ bg }) => {
                     width="100%"
                     height="100%"
                   />
-                </SwiperSlide>
-              )}
-              {images.map((src, i) => (
-                <SwiperSlide key={i}>
+                )}
+                {images.map((src, i) => (
                   <img
+                    key={i}
                     src={src}
                     alt={singleProduct.name}
                     loading="lazy"
-                    className="object-cover rounded"
+                    className="min-h-full rounded-md"
                   />
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          ) : (
-            <div
-              className={`grid gap-2 ${
-                images.length > 1 || videoUrl ? "lg:grid-cols-2" : "grid-cols-1"
-              }`}
-            >
-              {videoUrl && (
-                <ReactPlayer
-                  url={videoUrl}
-                  playing
-                  loop
-                  muted
-                  width="100%"
-                  height="100%"
-                />
-              )}
-              {images.map((src, i) => (
-                <img
-                  key={i}
-                  src={src}
-                  alt={singleProduct.name}
-                  loading="lazy"
-                  className="min-h-full rounded-md"
-                />
-              ))}
-            </div>
-          )}
-        </div>
+                ))}
+              </div>
+            )}
+          </div>
 
-        {/* Product Info */}
-        <div className="w-full md:w-1/2">
-          <div className="sm:sticky top-24 space-y-5 px-2 sm:px-0 z-10">
-            <h1 className="text-xl lg:text-3xl font-bold">
-              {singleProduct.name}
-            </h1>
-            <div className="flex gap-1 text-amber-500">
-              {[...Array(5)].map((_, i) => (
-                <FaStar key={i} />
-              ))}
-            </div>
+          {/* Product Info */}
+          <div className="w-full md:w-1/2">
+            <div className="sm:sticky top-24 space-y-5 px-2 sm:px-0 z-10">
+              <h1 className="text-xl lg:text-3xl font-bold">
+                {singleProduct.name}
+              </h1>
+              <div className="flex gap-1 text-amber-500">
+                {[...Array(5)].map((_, i) => (
+                  <FaStar key={i} />
+                ))}
+              </div>
 
-            <div className="text-3xl font-semibold">
-              {originalPrice === offerPrice ? (
-                <p className="text-default">
-                  {currency} {originalPrice.toLocaleString()}
-                </p>
-              ) : (
-                <div className="flex items-center gap-5">
+              <div className="text-3xl font-semibold">
+                {originalPrice === offerPrice ? (
                   <p className="text-default">
-                    {currency} {offerPrice.toLocaleString()}
+                    {currency} {originalPrice.toLocaleString()}
                   </p>
-                  <div className="relative inline-block text-lg text-gray-500">
-                    <span>
-                      {currency} {originalPrice.toLocaleString()}
-                    </span>
-                    <span className="absolute inset-0 w-full h-[2px] bg-default transform rotate-[-10deg] top-1/2 -translate-y-1/2" />
+                ) : (
+                  <div className="flex items-center gap-5">
+                    <p className="text-default">
+                      {currency} {offerPrice.toLocaleString()}
+                    </p>
+                    <div className="relative inline-block text-lg text-gray-500">
+                      <span>
+                        {currency} {originalPrice.toLocaleString()}
+                      </span>
+                      <span className="absolute inset-0 w-full h-[2px] bg-default transform rotate-[-10deg] top-1/2 -translate-y-1/2" />
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-            {discountAmount > 0 && (
-              <p className="bg-white rounded-full inline-flex px-3 py-1">
-                Save: {currency} {discountAmount}
-              </p>
-            )}
-            <p className="text-gray-500">Category: {categoryName}</p>
-
-            <div className="flex items-center gap-2">
-              <button onClick={decrement} className="p-2 border rounded">
-                <FaMinus />
-              </button>
-              <span className="px-4">{quantity}</span>
-              <button onClick={increment} className="p-2 border rounded">
-                <FaPlus />
-              </button>
-            </div>
-
-            {stock > 0 ? (
-              <button
-                onClick={handleAddToCart}
-                className="w-full bg-default text-white py-3 rounded font-bold mt-4"
-              >
-                অর্ডার করুন
-              </button>
-            ) : (
-              <p className="text-gray-500 mt-4">Out of Stock...</p>
-            )}
-
-            <hr className="mt-8 sm:w-4/5" />
-
-            <div className="mt-5 text-gray-500 text-sm space-y-3">
-              <div className="flex gap-2">
-                <FaAward size={20} />
-                <p>100% Original Product.</p>
-              </div>
-              <div className="flex gap-2">
-                <FaTruck size={20} />
-                <p>Express Shipping</p>
-              </div>
-              <div className="flex gap-2">
-                <FaCcMastercard size={20} />
-                <p>Cash on Delivery Available</p>
-              </div>
-              <div className="flex gap-2">
-                <FaShoppingBag size={20} />
-                <p>Easy return and exchange policy within 3 days</p>
-              </div>
-            </div>
-
-            {/* Short Description Accordion */}
-            <button
-              onClick={() => {
-                setIsShortOpen((prev) => {
-                  const next = !prev;
-                  if (next) setIsLongOpen(false); // close long when opening short
-                  return next;
-                });
-              }}
-              className="flex justify-between w-full text-lg font-medium mb-2"
-            >
-              Short Description{" "}
-              <FaAngleDown className={isShortOpen ? "rotate-180" : ""} />
-            </button>
-            {isShortOpen && (
-              <p
-                className="text-gray-600 mb-6"
-                dangerouslySetInnerHTML={{
-                  __html: shortDesc.replace(/\r\n/g, "<br/>"),
-                }}
-              />
-            )}
-
-            {/* Long Description Accordion (hide if no longDesc) */}
-            {longDesc && (
-              <>
-                <button
-                  onClick={() => {
-                    setIsLongOpen((prev) => {
-                      const next = !prev;
-                      if (next) setIsShortOpen(false); // close short when opening long
-                      return next;
-                    });
-                  }}
-                  className="flex justify-between w-full text-lg font-medium mb-2"
-                >
-                  Long Description{" "}
-                  <FaAngleDown className={isLongOpen ? "rotate-180" : ""} />
-                </button>
-                {isLongOpen && (
-                  <p
-                    className="text-gray-600 mb-6"
-                    dangerouslySetInnerHTML={{
-                      __html: longDesc.replace(/\r\n/g, "<br/>"),
-                    }}
-                  />
                 )}
-              </>
-            )}
+              </div>
+              {discountAmount > 0 && (
+                <p className="bg-white rounded-full inline-flex px-3 py-1">
+                  Save: {currency} {discountAmount}
+                </p>
+              )}
+              <p className="text-gray-500">Category: {categoryName}</p>
 
-            <div className="flex gap-4 text-2xl">
-              {[
-                ["facebook.com/sharer/sharer.php?u=", FaFacebook],
-                ["instagram.com/?url=", FaInstagram],
-                ["reddit.com/submit?url=", FaReddit],
-                ["wa.me/?text=", FaWhatsapp],
-                ["threads.net/share?text=", FaThreads],
-                [
-                  "pinterest.com/pin/create/button/?url=",
-                  FaPinterest,
-                  `&media=${encodeURIComponent(
-                    images[0]
-                  )}&description=${encodeURIComponent(shortDesc)}`,
-                ],
-              ].map(([base, Icon, extra], i) => (
-                <Link
-                  key={i}
-                  to={`https://${base}${encodeURIComponent(productUrl)}${
-                    extra || ""
-                  }`}
-                  target="_blank"
-                  rel="noopener noreferrer"
+              <div className="flex items-center gap-2">
+                <button onClick={decrement} className="p-2 border rounded">
+                  <FaMinus />
+                </button>
+                <span className="px-4">{quantity}</span>
+                <button onClick={increment} className="p-2 border rounded">
+                  <FaPlus />
+                </button>
+              </div>
+
+              {stock > 0 ? (
+                <button
+                  onClick={handleAddToCart}
+                  className="w-full bg-default text-white py-3 rounded font-bold mt-4"
                 >
-                  <Icon />
-                </Link>
-              ))}
+                  অর্ডার করুন
+                </button>
+              ) : (
+                <p className="text-gray-500 mt-4">Out of Stock...</p>
+              )}
+
+              <hr className="mt-8 sm:w-4/5" />
+
+              <div className="mt-5 text-gray-500 text-sm space-y-3">
+                <div className="flex gap-2">
+                  <FaAward size={20} />
+                  <p>100% Original Product.</p>
+                </div>
+                <div className="flex gap-2">
+                  <FaTruck size={20} />
+                  <p>Express Shipping</p>
+                </div>
+                <div className="flex gap-2">
+                  <FaCcMastercard size={20} />
+                  <p>Cash on Delivery Available</p>
+                </div>
+                <div className="flex gap-2">
+                  <FaShoppingBag size={20} />
+                  <p>Easy return and exchange policy within 3 days</p>
+                </div>
+              </div>
+
+              {/* Short Description Accordion */}
+              <button
+                onClick={() => {
+                  setIsShortOpen((prev) => {
+                    const next = !prev;
+                    if (next) setIsLongOpen(false); // close long when opening short
+                    return next;
+                  });
+                }}
+                className="flex justify-between w-full text-lg font-medium mb-2"
+              >
+                Short Description{" "}
+                <FaAngleDown className={isShortOpen ? "rotate-180" : ""} />
+              </button>
+              {isShortOpen && (
+                <p
+                  className="text-gray-600 mb-6"
+                  dangerouslySetInnerHTML={{
+                    __html: shortDesc.replace(/\r\n/g, "<br/>"),
+                  }}
+                />
+              )}
+
+              {/* Long Description Accordion (hide if no longDesc) */}
+              {longDesc && (
+                <>
+                  <button
+                    onClick={() => {
+                      setIsLongOpen((prev) => {
+                        const next = !prev;
+                        if (next) setIsShortOpen(false); // close short when opening long
+                        return next;
+                      });
+                    }}
+                    className="flex justify-between w-full text-lg font-medium mb-2"
+                  >
+                    Long Description{" "}
+                    <FaAngleDown className={isLongOpen ? "rotate-180" : ""} />
+                  </button>
+                  {isLongOpen && (
+                    <p
+                      className="text-gray-600 mb-6"
+                      dangerouslySetInnerHTML={{
+                        __html: longDesc.replace(/\r\n/g, "<br/>"),
+                      }}
+                    />
+                  )}
+                </>
+              )}
+
+              <div className="flex gap-4 text-2xl">
+                {[
+                  ["facebook.com/sharer/sharer.php?u=", FaFacebook],
+                  ["instagram.com/?url=", FaInstagram],
+                  ["reddit.com/submit?url=", FaReddit],
+                  ["wa.me/?text=", FaWhatsapp],
+                  ["threads.net/share?text=", FaThreads],
+                  [
+                    "pinterest.com/pin/create/button/?url=",
+                    FaPinterest,
+                    `&media=${encodeURIComponent(
+                      images[0]
+                    )}&description=${encodeURIComponent(shortDesc)}`,
+                  ],
+                ].map(([base, Icon, extra], i) => (
+                  <Link
+                    key={i}
+                    to={`https://${base}${encodeURIComponent(productUrl)}${
+                      extra || ""
+                    }`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Icon />
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Mobile Footer Cart Menu */}
-      <div className="fixed bottom-0 left-0 right-0 sm:hidden bg-gradient-to-t from-gray-50 to-white shadow-lg px-6 py-4 flex items-center gap-2 z-50">
-        <button
-          onClick={handleAddToCart}
-          className="flex-1 bg-default text-white py-2 rounded-full font-bold"
-        >
-          অর্ডার করুন
-        </button>
-        <button onClick={() => setCartMenu(true)} className="relative">
-          <FaShoppingCart size={24} />
-          {/* <span className="absolute -top-2 -right-2 bg-sky-400 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full animate-ping">
+        {/* Mobile Footer Cart Menu */}
+        <div className="fixed bottom-0 left-0 right-0 sm:hidden bg-gradient-to-t from-gray-50 to-white shadow-lg px-6 py-4 flex items-center gap-2 z-50">
+          <button
+            onClick={handleAddToCart}
+            className="flex-1 bg-default text-white py-2 rounded-full font-bold"
+          >
+            অর্ডার করুন
+          </button>
+          <button onClick={() => setCartMenu(true)} className="relative">
+            <FaShoppingCart size={24} />
+            {/* <span className="absolute -top-2 -right-2 bg-sky-400 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full animate-ping">
             {totalQuantity > 9 ? "9+" : totalQuantity}
           </span> */}
-          <span
-            className={`absolute -top-2 -right-2 bg-sky-400 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full ${bg} ${
-              totalQuantity > 0 && "animate-ping"
-            }`}
-          ></span>
-          <span
-            className={`absolute -top-2 -right-2 bg-sky-400 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full ${bg}`}
+            <span
+              className={`absolute -top-2 -right-2 bg-sky-400 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full ${bg} ${
+                totalQuantity > 0 && "animate-ping"
+              }`}
+            ></span>
+            <span
+              className={`absolute -top-2 -right-2 bg-sky-400 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full ${bg}`}
+            >
+              {totalQuantity > 9 ? "9+" : totalQuantity}
+            </span>
+          </button>
+        </div>
+
+        {/* Related Products */}
+        <div className="relative pt-20 pb-40 sm:pb-0">
+          <RelatedProducts category={categoryName} id={singleProduct._id} />
+        </div>
+        <div className="sm:block md:hidden bottom-0 left-0 bo w-full bg-black pb-4 mt-3 text-center flex items-center justify-center gap-1 z-10">
+          <p className="text-white text-sm">
+            &copy; {new Date().getFullYear()} Powered by
+          </p>
+          <Link to="https://calquick.app">
+            <img
+              className="w-[70px]"
+              src="/image/logo-white.webp"
+              alt="CalQuick Logo"
+            />
+          </Link>
+        </div>
+
+        {/* Back Home Button (Mobile) */}
+        <div className="absolute sm:hidden top-4 left-4 z-50">
+          <Link
+            to="/"
+            className="w-10 h-10 flex items-center justify-center bg-default/50 rounded-full"
           >
-            {totalQuantity > 9 ? "9+" : totalQuantity}
-          </span>
-        </button>
+            <FaHome className="text-white" size={25} />
+          </Link>
+        </div>
       </div>
-
-      {/* Related Products */}
-      <div className="relative pt-20 pb-40 sm:pb-0">
-        <RelatedProducts category={categoryName} id={singleProduct._id} />
-      </div>
-
-      {/* Back Home Button (Mobile) */}
-      <div className="absolute sm:hidden top-4 left-4 z-50">
-        <Link
-          to="/"
-          className="w-10 h-10 flex items-center justify-center bg-default/50 rounded-full"
-        >
-          <FaHome className="text-white" size={25} />
+      <div className="bottom-0 left-0 w-full bg-black py-2 mt-5 text-center flex items-center justify-center gap-1 z-10">
+        <p className="text-white text-sm">
+          &copy; {new Date().getFullYear()} Powered by
+        </p>
+        <Link to="https://calquick.app">
+          <img
+            className="w-[70px]"
+            src="/image/logo-white.webp"
+            alt="CalQuick Logo"
+          />
         </Link>
       </div>
-    </div>
+    </>
   );
 };
 

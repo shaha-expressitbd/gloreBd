@@ -143,132 +143,151 @@ const Collections = () => {
 
   /* ---------------- JSX ---------------- */
   return (
-    <div className="container mx-auto relative pb-20 sm:py-20 sm:pb-10 min-h-screen px-3 sm:px-0">
-      {/* Desktop search */}
-      <div className="hidden  sm:block">
-        <SearchBar />
-      </div>
+    <>
+      <div className="container mx-auto relative pb-20 sm:py-20 sm:pb-10 min-h-screen px-3 sm:px-0">
+        {/* Desktop search */}
+        <div className="hidden  sm:block">
+          <SearchBar />
+        </div>
 
-      <div className="flex sm:flex-row flex-col gap-1 sm:gap-10 pt-5 py-10 border-t sm:space-y-5">
-        {/* ------------- Sidebar ------------- */}
-        <div className="min-w-60">
-          {/* Mobile top bar */}
-          <div className="flex items-center justify-between px-2 sm:px-0 sm:hidden">
-            <div className="w-1/3">
-              <button
-                onClick={() => setShowFilter(!showFilter)}
-                className="flex items-center gap-2 my-2 text-xl"
-              >
-                FILTERS
-                <FaAngleRight
-                  className={`h-3 transition duration-200 ${
-                    showFilter ? "rotate-90" : ""
-                  }`}
-                />
-              </button>
+        <div className="flex sm:flex-row flex-col gap-1 sm:gap-10 pt-5 py-10 border-t sm:space-y-5">
+          {/* ------------- Sidebar ------------- */}
+          <div className="min-w-60">
+            {/* Mobile top bar */}
+            <div className="flex items-center justify-between px-2 sm:px-0 sm:hidden">
+              <div className="w-1/3">
+                <button
+                  onClick={() => setShowFilter(!showFilter)}
+                  className="flex items-center gap-2 my-2 text-xl"
+                >
+                  FILTERS
+                  <FaAngleRight
+                    className={`h-3 transition duration-200 ${
+                      showFilter ? "rotate-90" : ""
+                    }`}
+                  />
+                </button>
+              </div>
+              <Link to="/">
+                <img src={assets.logo} alt="Logo" className="w-24" />
+              </Link>
+              <div className="w-1/3 flex justify-end">
+                <button onClick={() => setShowSearch(!showSearch)}>
+                  <img
+                    src={assets.search_icon}
+                    alt="search"
+                    className="w-5 cursor-pointer"
+                  />
+                </button>
+              </div>{" "}
             </div>
-            <Link to="/">
-              <img src={assets.logo} alt="Logo" className="w-24" />
-            </Link>
-            <div className="w-1/3 flex justify-end">
-              <button onClick={() => setShowSearch(!showSearch)}>
-                <img
-                  src={assets.search_icon}
-                  alt="search"
-                  className="w-5 cursor-pointer"
-                />
-              </button>
-            </div>{" "}
-          </div>
 
-          {/* Filters */}
-          <div
-            className={`border rounded border-gray-300 sm:mt-12 p-5 mb-5 ${
-              showFilter ? "" : "hidden"
-            } sm:block`}
-          >
-            {/* Sub-category filter */}
-            <div className="mb-5 sm:mb-10 space-y-3">
-              <span className="font-semibold">Filter by Sub-Category</span>
-              <div className="flex flex-col gap-2 text-sm text-gray-700 max-h-60 overflow-y-auto pr-1">
-                {subCats.map((sc) => (
-                  <label key={sc._id} className="flex gap-2 items-center">
-                    <input
-                      type="checkbox"
-                      value={sc._id}
-                      checked={selectedSubs.includes(sc._id)}
-                      onChange={toggleSubCat}
-                      className="w-3 h-3"
-                    />
-                    {sc.name}
-                  </label>
-                ))}
+            {/* Filters */}
+            <div
+              className={`border rounded border-gray-300 sm:mt-12 p-5 mb-5 ${
+                showFilter ? "" : "hidden"
+              } sm:block`}
+            >
+              {/* Sub-category filter */}
+              <div className="mb-5 sm:mb-10 space-y-3">
+                <span className="font-semibold">Filter by Sub-Category</span>
+                <div className="flex flex-col gap-2 text-sm text-gray-700 max-h-60 overflow-y-auto pr-1">
+                  {subCats.map((sc) => (
+                    <label key={sc._id} className="flex gap-2 items-center">
+                      <input
+                        type="checkbox"
+                        value={sc._id}
+                        checked={selectedSubs.includes(sc._id)}
+                        onChange={toggleSubCat}
+                        className="w-3 h-3"
+                      />
+                      {sc.name}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Price filter */}
+              <div className="space-y-3">
+                <span className="font-semibold">Filter by Price</span>
+                <PriceRangeFilter
+                  min={priceRange[0]}
+                  max={priceRange[1]}
+                  minDifference={100}
+                  onRangeChange={setRange}
+                  currency={currency}
+                />
               </div>
             </div>
+          </div>
 
-            {/* Price filter */}
-            <div className="space-y-3">
-              <span className="font-semibold">Filter by Price</span>
-              <PriceRangeFilter
-                min={priceRange[0]}
-                max={priceRange[1]}
-                minDifference={100}
-                onRangeChange={setRange}
-                currency={currency}
-              />
+          {/* ------------- Products ------------- */}
+          <div className="flex-1">
+            {/* heading + sort */}
+            <div className="flex justify-between items-center my-5 px-2 sm:px-0 text-base sm:text-2xl">
+              <Title text1="ALL" text2="COLLECTIONS" />
+              <select
+                value={sortType}
+                onChange={(e) => setSortType(e.target.value)}
+                className="border-2 border-default px-2 text-sm rounded"
+              >
+                <option value="relavent">Sort by: Relevant</option>
+                <option value="low-high">Price: Low to High</option>
+                <option value="high-low">Price: High to Low</option>
+                <option value="latest">Latest to Oldest</option>
+                <option value="oldest">Oldest to Latest</option>
+                <option value="name-asc">Name: A to Z</option>
+                <option value="name-desc">Name: Z to A</option>
+                <option value="stock-high">Stock: High to Low</option>
+                <option value="stock-low">Stock: Low to High</option>
+              </select>
+            </div>
+
+            {/* grid */}
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-5">
+              {list.length ? (
+                list.map((p) => (
+                  <ProductItem
+                    key={p._id}
+                    id={p._id}
+                    name={p.name}
+                    product={p}
+                  />
+                ))
+              ) : (
+                <p className="col-span-full text-center py-10 text-gray-500">
+                  No products found
+                </p>
+              )}
+            </div>
+            <div className="sm:block md:hidden bottom-0 left-0 bo w-full bg-black py-2 mt-5 text-center flex items-center justify-center gap-1 z-10">
+              <p className="text-white text-sm">
+                &copy; {new Date().getFullYear()} Powered by
+              </p>
+              <Link to="https://calquick.app">
+                <img
+                  className="w-[70px]"
+                  src="/image/logo-white.webp"
+                  alt="CalQuick Logo"
+                />
+              </Link>
             </div>
           </div>
         </div>
-
-        {/* ------------- Products ------------- */}
-        <div className="flex-1">
-          {/* heading + sort */}
-          <div className="flex justify-between items-center my-5 px-2 sm:px-0 text-base sm:text-2xl">
-            <Title text1="ALL" text2="COLLECTIONS" />
-            <select
-              value={sortType}
-              onChange={(e) => setSortType(e.target.value)}
-              className="border-2 border-default px-2 text-sm rounded"
-            >
-              <option value="relavent">Sort by: Relevant</option>
-              <option value="low-high">Price: Low to High</option>
-              <option value="high-low">Price: High to Low</option>
-              <option value="latest">Latest to Oldest</option>
-              <option value="oldest">Oldest to Latest</option>
-              <option value="name-asc">Name: A to Z</option>
-              <option value="name-desc">Name: Z to A</option>
-              <option value="stock-high">Stock: High to Low</option>
-              <option value="stock-low">Stock: Low to High</option>
-            </select>
-          </div>
-
-          {/* grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 lg:gap-5">
-            {list.length ? (
-              list.map((p) => (
-                <ProductItem key={p._id} id={p._id} name={p.name} product={p} />
-              ))
-            ) : (
-              <p className="col-span-full text-center py-10 text-gray-500">
-                No products found
-              </p>
-            )}
-          </div>
-          <div className="bottom-0 left-0 w-full bg-black py-2 mt-5 text-center flex items-center justify-center gap-1 z-10">
-            <p className="text-white text-sm">
-              &copy; {new Date().getFullYear()} Powered by
-            </p>
-            <Link to="https://calquick.app">
-              <img
-                className="w-[70px]"
-                src="/image/logo-white.webp"
-                alt="CalQuick Logo"
-              />
-            </Link>
-          </div>
-        </div>
       </div>
-    </div>
+      <div className="bottom-0 left-0 bo w-full bg-black py-2 mt-5 text-center flex items-center justify-center gap-1 z-10">
+        <p className="text-white text-sm">
+          &copy; {new Date().getFullYear()} Powered by
+        </p>
+        <Link to="https://calquick.app">
+          <img
+            className="w-[70px]"
+            src="/image/logo-white.webp"
+            alt="CalQuick Logo"
+          />
+        </Link>
+      </div>
+    </>
   );
 };
 
